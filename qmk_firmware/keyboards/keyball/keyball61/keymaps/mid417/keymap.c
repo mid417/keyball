@@ -171,7 +171,17 @@ report_mouse_t pointing_device_task_user(report_mouse_t mouse_report)
                 break;
 
             case CLICKING:
+                break;
+
             case SCROLLING:
+                if (my_abs(current_y) * 4 > my_abs(current_x)) {
+                    current_x = 0;
+                    mouse_report.v = 0;
+                } else {
+                    current_y = 0;
+                    mouse_report.h = 0;
+                }
+
                 break;
 
             case WAITING:
@@ -236,7 +246,12 @@ layer_state_t layer_state_set_user(layer_state_t state)
 {
     // レイヤーが1または3の場合、スクロールモードが有効になる
     // keyball_set_scroll_mode(get_highest_layer(state) == 1 || get_highest_layer(state) == 3);
-    keyball_set_scroll_mode(get_highest_layer(state) == 2);
+    bool isScrollOn = get_highest_layer(state) == 2 ? true : false;
+    keyball_set_scroll_mode(isScrollOn);
+    if (isScrollOn)
+    {
+        state = SCROLLING;
+    }
 
     // レイヤーとLEDを連動させる
     uint8_t layer = biton32(state);
@@ -280,8 +295,21 @@ void oledkit_render_info_user(void)
     // マウスレイヤーの場合、文字色の白黒を反転させる
     bool isClicklayer = (get_highest_layer(layer_state) == click_layer);
     oled_write_P(PSTR("LYR \xB1 "), isClicklayer);
-    oled_write(get_u8_str(get_highest_layer(layer_state), ' '), isClicklayer);
-    oled_write_P(PSTR("            "), isClicklayer);
+    // oled_write(get_u8_str(get_highest_layer(layer_state), ' '), isClicklayer);
+    // oled_write_P(PSTR("            "), isClicklayer);
+
+    int layer = get_highest_layer(layer_state);
+    for (int i = 0; i < DYNAMIC_KEYMAP_LAYER_COUNT; i++) {
+        if (i == click_layer && isClicklayer) {
+            oled_write(get_u8_str(i, ' '), true);
+        } else {
+            if (i == layer) {
+                oled_write(get_u8_str(i, ' '), !isClicklayer);
+            } else {
+                oled_write(get_u8_str(i, ' '), isClicklayer);
+            }
+        }
+    }
 }
 
 oled_rotation_t oled_init_user(oled_rotation_t rotation) {

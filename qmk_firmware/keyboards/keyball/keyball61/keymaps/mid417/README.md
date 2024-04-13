@@ -3,7 +3,7 @@
 [かみだい](https://twitter.com/d_kamiichi)様のファームウェアを現時点の最新QMKファームウェアに適用し、
 [takashicompany](https://zenn.dev/takashicompany/articles/69b87160cda4b9)様のファームウェア参考に、私好みに変更させていただいています。
 
-QMK Firmwareのビルド環境がない人は [Releases](https://github.com/mid417/keybball/releases)  からダウンロードし、
+QMK Firmwareのビルド環境がない人は [Releases](https://github.com/mid417/keyball/releases)  からダウンロードし、
 Pro Micro Web Update などで書き込んでください。
 
 ## 特徴（かみだい様、takashicompany様のFWとの違い）

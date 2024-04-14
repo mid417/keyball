@@ -63,13 +63,11 @@ uint16_t click_timer;   // タイマー。状態に応じて時間で判定す�
 
 uint16_t to_reset_time = 800; // この秒数(千分の一秒)、CLICKABLE状態ならクリックレイヤーが無効になる。 For this number of seconds (milliseconds), the click layer is disabled if in CLICKABLE state.
 
-const int16_t to_clickable_movement = 0; // クリックレイヤーが有効になるしきい値
+const int16_t to_clickable_movement = 2; // クリックレイヤーが有効になるしきい値
 const uint16_t click_layer = 4;          // マウス入力が可能になった際に有効になるレイヤー。Layers enabled when mouse input is enabled
 
 int16_t mouse_record_threshold = 30; // ポインターの動きを一時的に記録するフレーム数。 Number of frames in which the pointer movement is temporarily recorded.
 int16_t mouse_move_count_ratio = 5;  // ポインターの動きを再生する際の移動フレームの係数。 The coefficient of the moving frame when replaying the pointer movement.
-
-int16_t mouse_movement;
 
 // クリック用のレイヤーを有効にする。　Enable layers for clicks
 void enable_click_layer(void)
@@ -90,12 +88,6 @@ void disable_click_layer(void)
 int16_t my_abs(int16_t num)
 {
     return (num < 0) ? -num : num;
-}
-
-// 現在クリックが可能な状態か。 Is it currently clickable?
-bool is_clickable_mode(void)
-{
-    return state == CLICKABLE || state == CLICKING;
 }
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record)
@@ -174,22 +166,21 @@ report_mouse_t pointing_device_task_user(report_mouse_t mouse_report)
                 break;
 
             case SCROLLING:
-                if (my_abs(current_y) * 4 > my_abs(current_x)) {
-                    current_x = 0;
+                if (my_abs(mouse_report.v) * 3 > my_abs(mouse_report.h)) {
                     mouse_report.v = 0;
+                    current_x = 0;
                 } else {
-                    current_y = 0;
                     mouse_report.h = 0;
+                    current_y = 0;
                 }
 
                 break;
 
             case WAITING:
-                mouse_movement += my_abs(current_x) + my_abs(current_y);
+                int16_t mouse_movement = my_abs(current_x) + my_abs(current_y);
 
                 if (mouse_movement >= to_clickable_movement)
                 {
-                    mouse_movement = 0;
                     enable_click_layer();
                 }
                 break;
@@ -197,7 +188,6 @@ report_mouse_t pointing_device_task_user(report_mouse_t mouse_report)
             default:
                 click_timer = timer_read();
                 state = WAITING;
-                mouse_movement = 0;
         }
     }
     else
@@ -218,13 +208,11 @@ report_mouse_t pointing_device_task_user(report_mouse_t mouse_report)
             case WAITING:
                 if (timer_elapsed(click_timer) > 50)
                 {
-                    mouse_movement = 0;
                     state = NONE;
                 }
                 break;
 
             default:
-                mouse_movement = 0;
                 state = NONE;
         }
     }

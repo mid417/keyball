@@ -51,11 +51,11 @@ enum custom_keycodes
 
 enum click_state
 {
-  NONE = 0,
-  WAITING,   // マウスレイヤーが有効になるのを待つ。 Wait for mouse layer to activate.
-  CLICKABLE, // マウスレイヤー有効になりクリック入力が取れる。 Mouse layer is enabled to take click input.
-  CLICKING,  // クリック中。 Clicking.
-  SCROLLING, // スクロール中。 Scrolling.
+    NONE = 0,
+    WAITING,    // マウスレイヤーが有効になるのを待つ。 Wait for mouse layer to activate.
+    CLICKABLE,  // マウスレイヤー有効になりクリック入力が取れる。 Mouse layer is enabled to take click input.
+    CLICKING,   // クリック中。 Clicking.
+    SCROLLING,  // スクロール中。 Scrolling.
 };
 
 enum click_state state; // 現在のクリック入力受付の状態 Current click input reception status
@@ -68,6 +68,8 @@ const uint16_t click_layer = 4;          // マウス入力が可能になった
 
 int16_t mouse_record_threshold = 30; // ポインターの動きを一時的に記録するフレーム数。 Number of frames in which the pointer movement is temporarily recorded.
 int16_t mouse_move_count_ratio = 5;  // ポインターの動きを再生する際の移動フレームの係数。 The coefficient of the moving frame when replaying the pointer movement.
+
+const uint16_t ignore_disable_mouse_layer_keys[] = { KC_LGUI, KC_LCTL, KC_LALT, KC_LSFT, KC_RGUI, KC_RCTL, KC_RALT, KC_RSFT };   // この配列で指定されたキーはマウスレイヤー中に押下してもマウスレイヤーを解除しない
 
 // クリック用のレイヤーを有効にする。　Enable layers for clicks
 void enable_click_layer(void)
@@ -141,6 +143,15 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record)
         default:
             if (record->event.pressed)
             {
+                // マウスレイヤー中に押下してもマウスレイヤーを解除しないキーを指定する
+                for (int i = 0; i < sizeof(ignore_disable_mouse_layer_keys) / sizeof(ignore_disable_mouse_layer_keys[0]); i++)
+                {
+                    if (keycode == ignore_disable_mouse_layer_keys[i])
+                    {
+                        return true;
+                    }
+                }
+
                 disable_click_layer();
             }
     }

@@ -29,8 +29,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // Split parameters
 #define SOFT_SERIAL_PIN         D2
 #define SPLIT_HAND_MATRIX_GRID  F7, D7
-#define SPLIT_USB_DETECT
-#define SPLIT_USB_TIMEOUT       500
+// #define SPLIT_USB_DETECT
+// #define SPLIT_USB_TIMEOUT       500
 #ifdef OLED_ENABLE
 #    define SPLIT_OLED_ENABLE
 #endif

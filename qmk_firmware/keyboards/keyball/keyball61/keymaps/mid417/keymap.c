@@ -291,7 +291,7 @@ void oledkit_render_info_user(void)
 
     // マウスレイヤーの場合、文字色の白黒を反転させる
     bool isClicklayer = (get_highest_layer(layer_state) == click_layer);
-    oled_write_P(PSTR("LYR \xB1 "), isClicklayer);
+    oled_write_P(PSTR("L\xB6\xB7r\xB1 "), isClicklayer);
     // oled_write(get_u8_str(get_highest_layer(layer_state), ' '), isClicklayer);
     // oled_write_P(PSTR("            "), isClicklayer);
 

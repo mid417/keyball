@@ -170,17 +170,7 @@ report_mouse_t pointing_device_task_user(report_mouse_t mouse_report)
                 break;
 
             case CLICKING:
-                break;
-
             case SCROLLING:
-                if (my_abs(mouse_report.v) * 3 > my_abs(mouse_report.h)) {
-                    mouse_report.v = 0;
-                    // current_x = 0;
-                } else {
-                    mouse_report.h = 0;
-                    // current_y = 0;
-                }
-
                 break;
 
             case WAITING:
@@ -236,35 +226,53 @@ report_mouse_t pointing_device_task_user(report_mouse_t mouse_report)
 ///
 ////////////////////////////////////
 
-#ifdef RGBLIGHT_ENABLE
 layer_state_t layer_state_set_user(layer_state_t state)
 {
     // レイヤーが1または3の場合、スクロールモードが有効になる
     // keyball_set_scroll_mode(get_highest_layer(state) == 1 || get_highest_layer(state) == 3);
-    bool isScrollOn = get_highest_layer(state) == 2 ? true : false;
+    bool isScrollOn = get_highest_layer(state) == 2;
     keyball_set_scroll_mode(isScrollOn);
     if (isScrollOn)
     {
         state = SCROLLING;
     }
 
+#ifdef RGBLIGHT_ENABLE
     // レイヤーとLEDを連動させる
     uint8_t layer = biton32(state);
+//*
     switch (layer)
     {
     case 4:
-        // rgblight_sethsv(170, 255, 70);
         rgblight_enable_noeeprom();
         break;
 
     default:
-        // rgblight_sethsv(HSV_OFF);
         rgblight_disable_noeeprom();
     }
+/*/
+    switch (layer)
+    {
+    case 1:
+        rgblight_sethsv(HSV_CYAN);
+        break;
+    case 2:
+        rgblight_sethsv(HSV_YELLOW);
+        break;
+    case 3:
+        rgblight_sethsv(HSV_GREEN);
+        break;
+    case 4:
+        rgblight_sethsv(0, 0, 70);
+        break;
+    default:
+        rgblight_sethsv(HSV_OFF);
+    }
+//*/
+#endif
 
     return state;
 }
-#endif
 
 #ifdef OLED_ENABLE
 #include "lib/oledkit/oledkit.h"
@@ -288,6 +296,7 @@ void oledkit_render_info_user(void)
 {
     keyball_oled_render_keyinfo();
     keyball_oled_render_ballinfo();
+//    keyball_oled_render_layerinfo();
 
     // マウスレイヤーの場合、文字色の白黒を反転させる
     bool isClicklayer = (get_highest_layer(layer_state) == click_layer);
